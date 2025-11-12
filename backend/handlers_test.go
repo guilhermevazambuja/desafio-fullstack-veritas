@@ -121,6 +121,7 @@ func TestGetTasks(t *testing.T) {
 
 }
 
+// Test fully replacing a specific task data
 func TestReplaceTask(t *testing.T) {
 	router := setupRouter()
 
@@ -150,6 +151,7 @@ func TestReplaceTask(t *testing.T) {
 	assert.Equal(t, testTask, *updatedTask)
 }
 
+// Test replacing task data with an incomplete request
 func TestReplaceTaskIncompletePayload(t *testing.T) {
 	router := setupRouter()
 
