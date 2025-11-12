@@ -53,10 +53,10 @@ func TestAddTaskInvalidPayload(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	assertJSON(t, w)
 
-	var resp map[string]string
+	var resp ErrorResponse
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
-	assert.Contains(t, resp["error"], "invalid")
+	assert.Equal(t, ErrInvalidPayload.Error(), resp.Error)
 }
 
 // Test getting a specific task
@@ -89,7 +89,7 @@ func TestGetTaskNotFound(t *testing.T) {
 	var resp ErrorResponse
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
-	assert.Equal(t, ErrTaskNotFound, resp.Error)
+	assert.Equal(t, ErrTaskNotFound.Error(), resp.Error)
 }
 
 // Test listing all tasks

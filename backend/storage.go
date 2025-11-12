@@ -13,6 +13,7 @@ func getTaskById(id string) (*Task, error) {
 		if t.ID == id {
 			return &tasks[i], nil
 		}
+
 	}
-	return nil, errors.New("task not found")
+	return nil, ErrTaskNotFound
 }

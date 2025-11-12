@@ -1,6 +1,8 @@
 package main
 
-const (
-	ErrTaskNotFound   = "task not found"
-	ErrInvalidPayload = "invalid task payload"
+import "errors"
+
+var (
+	ErrTaskNotFound   = errors.New("task not found")
+	ErrInvalidPayload = errors.New("invalid task payload")
 )

@@ -10,7 +10,7 @@ func addTask(context *gin.Context) {
 	var newTask Task
 
 	if err := context.BindJSON(&newTask); err != nil {
-		context.JSON(http.StatusBadRequest, ErrorResponse{Error: ErrInvalidPayload})
+		context.JSON(http.StatusBadRequest, ErrorResponse{Error: ErrInvalidPayload.Error()})
 		return
 	}
 
@@ -23,7 +23,7 @@ func getTask(context *gin.Context) {
 	task, err := getTaskById(id)
 
 	if err != nil {
-		context.IndentedJSON(http.StatusNotFound, ErrorResponse{Error: ErrTaskNotFound})
+		context.IndentedJSON(http.StatusNotFound, ErrorResponse{Error: ErrTaskNotFound.Error()})
 		return
 	}
 
