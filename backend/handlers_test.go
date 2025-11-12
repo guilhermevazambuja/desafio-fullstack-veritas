@@ -26,12 +26,7 @@ func setupRouter() *gin.Engine {
 func TestAddTask(t *testing.T) {
 	router := setupRouter()
 
-	testTask := Task{
-		ID:        "4",
-		Title:     "Write Documentation",
-		Completed: false,
-	}
-
+	testTask := Task{ID: "4", Title: "Write Documentation", Completed: false}
 	body, err := json.Marshal(testTask)
 	require.NoError(t, err)
 
@@ -44,12 +39,7 @@ func TestAddTask(t *testing.T) {
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 
-	// Deterministic expectations
-	want := testTask
-	got := resp.Data
-	assert.Equal(t, want.ID, got.ID)
-	assert.Equal(t, want.Title, got.Title)
-	assert.Equal(t, want.Completed, got.Completed)
+	assert.Equal(t, testTask, resp.Data)
 }
 
 // Test getting a specific task
@@ -65,12 +55,7 @@ func TestGetTask(t *testing.T) {
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 
-	// Deterministic expectations
-	want := tasks[0]
-	got := resp.Data
-	assert.Equal(t, want.ID, got.ID)
-	assert.Equal(t, want.Title, got.Title)
-	assert.Equal(t, want.Completed, got.Completed)
+	assert.Equal(t, tasks[0], resp.Data)
 }
 
 // Test listing all tasks
@@ -86,23 +71,14 @@ func TestGetTasks(t *testing.T) {
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 
-	// Deterministic expectations
-	require.NotEmpty(t, resp.Data)
 	assert.Equal(t, len(tasks), len(resp.Data))
 
 	// Validate first item fields
-	got := resp.Data[0]
-	want := tasks[0]
-	assert.Equal(t, want.ID, got.ID)
-	assert.Equal(t, want.Title, got.Title)
-	assert.Equal(t, want.Completed, got.Completed)
+	assert.Equal(t, tasks[0], resp.Data[0])
 
 	// Validate last item fields
-	want = tasks[len(tasks)-1]
-	got = resp.Data[len(resp.Data)-1]
-	assert.Equal(t, want.ID, got.ID)
-	assert.Equal(t, want.Title, got.Title)
-	assert.Equal(t, want.Completed, got.Completed)
+	assert.Equal(t, tasks[len(tasks)-1], resp.Data[len(resp.Data)-1])
+
 }
 
 func performRequest(r http.Handler, method string, path string, body []byte) *httptest.ResponseRecorder {
