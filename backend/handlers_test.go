@@ -42,6 +42,23 @@ func TestAddTask(t *testing.T) {
 	assert.Equal(t, testTask, resp.Data)
 }
 
+// Test adding a task with an invalid request body
+func TestAddTaskInvalidPayload(t *testing.T) {
+	router := setupRouter()
+
+	invalidJSON := []byte(`{"ids": "5", "title": 123}`)
+
+	w := performRequest(router, http.MethodPost, "/tasks", invalidJSON)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertJSON(t, w)
+
+	var resp map[string]string
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, err)
+	assert.Contains(t, resp["error"], "invalid")
+}
+
 // Test getting a specific task
 func TestGetTask(t *testing.T) {
 	router := setupRouter()
@@ -56,6 +73,23 @@ func TestGetTask(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, tasks[0], resp.Data)
+}
+
+// Test getting a task that doesn't exist
+func TestGetTaskNotFound(t *testing.T) {
+	router := setupRouter()
+
+	invalidId := "nonexistent-id"
+
+	w := performRequest(router, http.MethodGet, "/tasks/"+invalidId, nil)
+
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	assertJSON(t, w)
+
+	var resp ErrorResponse
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, err)
+	assert.Equal(t, ErrTaskNotFound, resp.Error)
 }
 
 // Test listing all tasks
