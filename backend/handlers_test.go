@@ -35,14 +35,10 @@ func TestAddTask(t *testing.T) {
 	body, err := json.Marshal(testTask)
 	require.NoError(t, err)
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodPost, "/tasks", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-	router.ServeHTTP(w, req)
+	w := performRequest(router, http.MethodPost, "/tasks", body)
 
-	// Status and content type
 	assert.Equal(t, http.StatusCreated, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assertJSON(t, w)
 
 	var resp SuccessResponse[Task]
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
@@ -60,13 +56,10 @@ func TestAddTask(t *testing.T) {
 func TestGetTask(t *testing.T) {
 	router := setupRouter()
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/tasks/1", nil)
-	router.ServeHTTP(w, req)
+	w := performRequest(router, http.MethodGet, "/tasks/1", nil)
 
-	// Status and content type
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assertJSON(t, w)
 
 	var resp SuccessResponse[Task]
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
@@ -84,13 +77,10 @@ func TestGetTask(t *testing.T) {
 func TestGetTasks(t *testing.T) {
 	router := setupRouter()
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/tasks", nil)
-	router.ServeHTTP(w, req)
+	w := performRequest(router, http.MethodGet, "/tasks", nil)
 
-	// Status and content type
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assertJSON(t, w)
 
 	var resp SuccessResponse[[]Task]
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
@@ -113,4 +103,16 @@ func TestGetTasks(t *testing.T) {
 	assert.Equal(t, want.ID, got.ID)
 	assert.Equal(t, want.Title, got.Title)
 	assert.Equal(t, want.Completed, got.Completed)
+}
+
+func performRequest(r http.Handler, method string, path string, body []byte) *httptest.ResponseRecorder {
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(method, path, bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	r.ServeHTTP(w, req)
+	return w
+}
+
+func assertJSON(t *testing.T, w *httptest.ResponseRecorder) {
+	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 }
