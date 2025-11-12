@@ -9,7 +9,7 @@ import (
 
 func addTask(context *gin.Context) {
 	var newTask Task
-	err := context.BindJSON(&newTask)
+	err := context.ShouldBindJSON(&newTask)
 
 	statusCode := http.StatusInternalServerError
 	if err != nil {
