@@ -19,6 +19,7 @@ func setupRouter() *gin.Engine {
 	r.POST("/tasks", addTask)
 	r.GET("/tasks/:id", getTask)
 	r.GET("/tasks", getTasks)
+	r.PUT("/tasks/:id", replaceTask)
 	return r
 }
 
@@ -117,6 +118,60 @@ func TestGetTasks(t *testing.T) {
 	// Validate last item fields
 	assert.Equal(t, tasks[len(tasks)-1], resp.Data[len(resp.Data)-1])
 
+}
+
+func TestReplaceTask(t *testing.T) {
+	router := setupRouter()
+
+	testTask := Task{
+		ID:        strPtr("1"),
+		Title:     strPtr("Clean the kitchen"),
+		Completed: boolPtr(true),
+	}
+	body, err := json.Marshal(testTask)
+	require.NoError(t, err)
+
+	originalTask, _ := getTaskById("1")
+	assert.NotEqual(t, "Clean the kitchen", *originalTask.Title)
+
+	w := performRequest(router, http.MethodPut, "/tasks/1", body)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assertJSON(t, w)
+
+	var resp SuccessResponse[Task]
+	err = json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, err)
+
+	assert.Equal(t, testTask, resp.Data)
+
+	updatedTask, _ := getTaskById("1")
+	assert.Equal(t, testTask, *updatedTask)
+}
+
+func TestReplaceTaskIncompletePayload(t *testing.T) {
+	router := setupRouter()
+
+	badTask := Task{
+		Title: strPtr("Incomplete request"),
+	}
+	body, err := json.Marshal(badTask)
+	require.NoError(t, err)
+
+	originalTask, _ := getTaskById("1")
+
+	w := performRequest(router, http.MethodPut, "/tasks/1", body)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertJSON(t, w)
+
+	var resp ErrorResponse
+	err = json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, err)
+	assert.Equal(t, ErrIncompletePayload.Error(), resp.Error)
+
+	unchangedTask, _ := getTaskById("1")
+	assert.Equal(t, *originalTask, *unchangedTask)
 }
 
 func performRequest(r http.Handler, method string, path string, body []byte) *httptest.ResponseRecorder {

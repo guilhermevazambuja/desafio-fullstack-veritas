@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"net/http"
+	"reflect"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +31,6 @@ func getTask(context *gin.Context) {
 
 	statusCode := http.StatusInternalServerError
 	if err != nil {
-		context.IndentedJSON(http.StatusNotFound, ErrorResponse{Error: ErrTaskNotFound.Error()})
 		if errors.Is(err, ErrTaskNotFound) {
 			statusCode = http.StatusNotFound
 		}
@@ -44,4 +44,41 @@ func getTask(context *gin.Context) {
 
 func getTasks(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, SuccessResponse[[]Task]{Data: tasks})
+}
+
+func replaceTask(context *gin.Context) {
+	id := context.Param("id")
+	var updatedTask Task
+
+	errBindJSON := context.ShouldBindJSON(&updatedTask)
+	if errBindJSON != nil {
+		context.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: ErrInvalidPayload.Error()})
+		return
+	}
+
+	if updatedTask.ID != nil && *updatedTask.ID != id {
+		context.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: ErrIDMismatch.Error()})
+		return
+	}
+
+	existingTask, errGetTaskById := getTaskById(id)
+	if errGetTaskById != nil {
+		statusCode := http.StatusInternalServerError
+		if errors.Is(errGetTaskById, ErrTaskNotFound) {
+			statusCode = http.StatusNotFound
+		}
+		context.IndentedJSON(statusCode, ErrorResponse{Error: errGetTaskById.Error()})
+		return
+	}
+
+	vTask := reflect.ValueOf(updatedTask)
+	for i := 0; i < vTask.NumField(); i++ {
+		if vTask.Field(i).IsNil() {
+			context.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: ErrIncompletePayload.Error()})
+			return
+		}
+	}
+
+	*existingTask = updatedTask
+	context.IndentedJSON(http.StatusOK, SuccessResponse[Task]{Data: *existingTask})
 }
