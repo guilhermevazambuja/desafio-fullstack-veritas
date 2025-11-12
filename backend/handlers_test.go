@@ -20,6 +20,7 @@ func setupRouter() *gin.Engine {
 	r.GET("/tasks/:id", getTask)
 	r.GET("/tasks", getTasks)
 	r.PUT("/tasks/:id", replaceTask)
+	r.PATCH("/tasks/:id", updateTask)
 	return r
 }
 
@@ -172,6 +173,60 @@ func TestReplaceTaskIncompletePayload(t *testing.T) {
 
 	unchangedTask, _ := getTaskById("1")
 	assert.Equal(t, *originalTask, *unchangedTask)
+}
+
+// Test partially modifying an existing task
+func TestUpdateTaskSuccess(t *testing.T) {
+	router := setupRouter()
+
+	updatePayload := Task{
+		Title: strPtr("Clean the kitchen"),
+	}
+	body, err := json.Marshal(updatePayload)
+	require.NoError(t, err)
+
+	originalTask, _ := getTaskById("1")
+	assert.NotEqual(t, "Clean the kitchen", *originalTask.Title)
+
+	w := performRequest(router, http.MethodPatch, "/tasks/1", body)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assertJSON(t, w)
+
+	var resp SuccessResponse[Task]
+	err = json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, err)
+
+	assert.Equal(t, "Clean the kitchen", *resp.Data.Title)
+	assert.Equal(t, *originalTask.Completed, *resp.Data.Completed)
+
+	updatedTask, _ := getTaskById("1")
+	assert.Equal(t, "Clean the kitchen", *updatedTask.Title)
+}
+
+// Test updating a task with mismatched ID in payload
+func TestUpdateTaskIDMismatch(t *testing.T) {
+	router := setupRouter()
+
+	updatePayload := Task{
+		ID:    strPtr("999"),
+		Title: strPtr("Should fail"),
+	}
+	body, err := json.Marshal(updatePayload)
+	require.NoError(t, err)
+
+	w := performRequest(router, http.MethodPatch, "/tasks/1", body)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assertJSON(t, w)
+
+	var resp ErrorResponse
+	err = json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, err)
+	assert.Equal(t, ErrIDMismatch.Error(), resp.Error)
+
+	unchangedTask, _ := getTaskById("1")
+	assert.NotEqual(t, "Should fail", *unchangedTask.Title)
 }
 
 func performRequest(r http.Handler, method string, path string, body []byte) *httptest.ResponseRecorder {
