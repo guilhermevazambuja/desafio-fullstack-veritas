@@ -9,14 +9,19 @@ import (
 
 func addTask(context *gin.Context) {
 	var newTask Task
+	err := context.BindJSON(&newTask)
 
-	if err := context.BindJSON(&newTask); err != nil {
-		context.JSON(http.StatusBadRequest, ErrorResponse{Error: ErrInvalidPayload.Error()})
+	statusCode := http.StatusInternalServerError
+	if err != nil {
+		statusCode = http.StatusBadRequest
+		context.JSON(statusCode, ErrorResponse{Error: ErrInvalidPayload.Error()})
 		return
 	}
+	statusCode = http.StatusCreated
 
+	// TODO Add validation steps
 	tasks = append(tasks, newTask)
-	context.JSON(http.StatusCreated, SuccessResponse[Task]{Data: newTask})
+	context.JSON(statusCode, SuccessResponse[Task]{Data: newTask})
 }
 
 func getTask(context *gin.Context) {
