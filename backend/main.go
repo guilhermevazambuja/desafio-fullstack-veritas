@@ -9,6 +9,7 @@ func main() {
 	router.GET("/tasks", getTasks)
 	router.PUT("/tasks/:id", replaceTask)
 	router.PATCH("/tasks/:id", updateTask)
+	router.DELETE("/tasks/:id", deleteTask)
 
 	err := router.Run("localhost:9090")
 	if err != nil {

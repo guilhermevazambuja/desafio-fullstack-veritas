@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -21,6 +22,7 @@ func setupRouter() *gin.Engine {
 	r.GET("/tasks", getTasks)
 	r.PUT("/tasks/:id", replaceTask)
 	r.PATCH("/tasks/:id", updateTask)
+	r.DELETE("/tasks/:id", deleteTask)
 	return r
 }
 
@@ -229,6 +231,49 @@ func TestUpdateTaskIDMismatch(t *testing.T) {
 
 	unchangedTask, _ := getTaskById("1")
 	assert.NotEqual(t, "Should fail", *unchangedTask.Title)
+}
+
+// Test deleting an existing task successfully
+func TestDeleteTaskSuccess(t *testing.T) {
+	router := setupRouter()
+
+	taskToDeleteId := "3"
+
+	w := performRequest(router, http.MethodDelete, "/tasks/"+taskToDeleteId, nil)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assertJSON(t, w)
+
+	var resp SuccessResponse[Task]
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, err)
+
+	// Verifica que a resposta contém a task deletada
+	assert.Equal(t, "Record Video", *resp.Data.Title)
+	assert.Equal(t, taskToDeleteId, *resp.Data.ID)
+
+	// Verifica que a task foi realmente removida do slice
+	_, errGet := getTaskById(taskToDeleteId)
+	assert.Error(t, errGet)
+	assert.True(t, errors.Is(errGet, ErrTaskNotFound))
+}
+
+// Test deleting a non-existent task
+func TestDeleteTaskNotFound(t *testing.T) {
+	router := setupRouter()
+
+	invalidId := "nonexistent-id"
+
+	w := performRequest(router, http.MethodDelete, "/tasks/"+invalidId, nil)
+
+	assert.Equal(t, http.StatusNotFound, w.Code)
+	assertJSON(t, w)
+
+	var resp ErrorResponse
+	err := json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, err)
+
+	assert.Equal(t, ErrTaskNotFound.Error(), resp.Error)
 }
 
 func performRequest(r http.Handler, method string, path string, body []byte) *httptest.ResponseRecorder {

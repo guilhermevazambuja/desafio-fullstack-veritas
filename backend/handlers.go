@@ -120,3 +120,27 @@ func updateTask(context *gin.Context) {
 	}
 	context.IndentedJSON(http.StatusOK, SuccessResponse[Task]{Data: *existingTask})
 }
+
+func deleteTask(context *gin.Context) {
+	id := context.Param("id")
+
+	task, errGetTaskById := getTaskById(id)
+	if errGetTaskById != nil {
+		statusCode := http.StatusInternalServerError
+		if errors.Is(errGetTaskById, ErrTaskNotFound) {
+			statusCode = http.StatusNotFound
+		}
+		context.IndentedJSON(statusCode, ErrorResponse{Error: errGetTaskById.Error()})
+		return
+	}
+
+	deletedTask := *task
+	for i, t := range tasks {
+		if *t.ID == id {
+			tasks = append(tasks[:i], tasks[i+1:]...)
+			break
+		}
+	}
+
+	context.IndentedJSON(http.StatusOK, SuccessResponse[Task]{Data: deletedTask})
+}
