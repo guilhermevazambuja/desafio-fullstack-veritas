@@ -15,14 +15,14 @@ func addTask(context *gin.Context) {
 	statusCode := http.StatusInternalServerError
 	if err != nil {
 		statusCode = http.StatusBadRequest
-		context.JSON(statusCode, ErrorResponse{Error: ErrInvalidPayload.Error()})
+		context.IndentedJSON(statusCode, ErrorResponse{Error: ErrInvalidPayload.Error()})
 		return
 	}
 	statusCode = http.StatusCreated
 
 	// TODO Add validation steps
 	tasks = append(tasks, newTask)
-	context.JSON(statusCode, SuccessResponse[Task]{Data: newTask})
+	context.IndentedJSON(statusCode, SuccessResponse[Task]{Data: newTask})
 }
 
 func getTask(context *gin.Context) {
