@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -16,6 +17,7 @@ func setupRouter() *gin.Engine {
 
 	r := gin.Default()
 	r.GET("/tasks", getTasks)
+	r.POST("/tasks", addTask)
 	return r
 }
 
@@ -53,4 +55,36 @@ func TestGetTasks(t *testing.T) {
 	assert.Equal(t, want.ID, got.ID)
 	assert.Equal(t, want.Title, got.Title)
 	assert.Equal(t, want.Completed, got.Completed)
+}
+
+func TestAddTask(t *testing.T) {
+	router := setupRouter()
+
+	testTask := Task{
+		ID:        "4",
+		Title:     "Write Documentation",
+		Completed: false,
+	}
+
+	body, err := json.Marshal(testTask)
+	require.NoError(t, err)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPost, "/tasks", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+
+	// Status code
+	assert.Equal(t, http.StatusCreated, w.Code)
+
+	// Parse response body into map
+	var response map[string]interface{}
+	err = json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+
+	// Validate returned task fields
+	data := response["data"].(map[string]interface{})
+	assert.Equal(t, testTask.ID, data["id"])
+	assert.Equal(t, testTask.Title, data["title"])
+	assert.Equal(t, testTask.Completed, data["completed"])
 }
