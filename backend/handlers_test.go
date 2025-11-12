@@ -44,8 +44,7 @@ func TestAddTask(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
-	// Typed JSON decode
-	var resp SingleResp
+	var resp SuccessResponse[Task]
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 
@@ -69,8 +68,7 @@ func TestGetTask(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
-	// Typed JSON decode
-	var resp SingleResp
+	var resp SuccessResponse[Task]
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 
@@ -94,8 +92,7 @@ func TestGetTasks(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
 
-	// Typed JSON decode
-	var resp ListResp
+	var resp SuccessResponse[[]Task]
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 

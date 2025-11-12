@@ -10,12 +10,12 @@ func addTask(context *gin.Context) {
 	var newTask Task
 
 	if err := context.BindJSON(&newTask); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.JSON(http.StatusBadRequest, ErrorResponse{Error: ErrInvalidPayload})
 		return
 	}
 
 	tasks = append(tasks, newTask)
-	context.JSON(http.StatusCreated, gin.H{"data": newTask})
+	context.JSON(http.StatusCreated, SuccessResponse[Task]{Data: newTask})
 }
 
 func getTask(context *gin.Context) {
@@ -23,13 +23,13 @@ func getTask(context *gin.Context) {
 	task, err := getTaskById(id)
 
 	if err != nil {
-		context.IndentedJSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		context.IndentedJSON(http.StatusNotFound, ErrorResponse{Error: ErrTaskNotFound})
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, gin.H{"data": task})
+	context.IndentedJSON(http.StatusOK, SuccessResponse[Task]{Data: *task})
 }
 
 func getTasks(context *gin.Context) {
-	context.IndentedJSON(http.StatusOK, gin.H{"data": tasks})
+	context.IndentedJSON(http.StatusOK, SuccessResponse[[]Task]{Data: tasks})
 }
