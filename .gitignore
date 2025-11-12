@@ -162,4 +162,10 @@ go.work.sum
 
 # Editor/IDE
 /.idea/
-# .vscode/
+/.run/
+
+pnpm-debug.log*
+node_modules
+dist-ssr
+*.local
+
