@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"reflect"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -72,8 +73,15 @@ func replaceTask(context *gin.Context) {
 	}
 
 	vTask := reflect.ValueOf(updatedTask)
+	tTask := reflect.TypeOf(updatedTask)
 	for i := 0; i < vTask.NumField(); i++ {
-		if vTask.Field(i).IsNil() {
+		field := tTask.Field(i)
+		tag := field.Tag.Get("json")
+		val := vTask.Field(i)
+		if strings.Contains(tag, "omitempty") {
+			continue
+		}
+		if val.IsNil() {
 			context.IndentedJSON(http.StatusBadRequest, ErrorResponse{Error: ErrIncompletePayload.Error()})
 			return
 		}
