@@ -28,6 +28,7 @@ func setupRouter() *gin.Engine {
 
 // Test adding a new task
 func TestAddTask(t *testing.T) {
+	resetTasks()
 	router := setupRouter()
 
 	testTask := Task{
@@ -52,6 +53,7 @@ func TestAddTask(t *testing.T) {
 
 // Test adding a task with an invalid request body
 func TestAddTaskInvalidPayload(t *testing.T) {
+	resetTasks()
 	router := setupRouter()
 
 	invalidJSON := []byte(`{"ids": "5", "title": 123}`)
@@ -69,6 +71,7 @@ func TestAddTaskInvalidPayload(t *testing.T) {
 
 // Test getting a specific task
 func TestGetTask(t *testing.T) {
+	resetTasks()
 	router := setupRouter()
 
 	w := performRequest(router, http.MethodGet, "/tasks/1", nil)
@@ -85,6 +88,7 @@ func TestGetTask(t *testing.T) {
 
 // Test getting a task that doesn't exist
 func TestGetTaskNotFound(t *testing.T) {
+	resetTasks()
 	router := setupRouter()
 
 	invalidId := "nonexistent-id"
@@ -102,6 +106,7 @@ func TestGetTaskNotFound(t *testing.T) {
 
 // Test listing all tasks
 func TestGetTasks(t *testing.T) {
+	resetTasks()
 	router := setupRouter()
 
 	w := performRequest(router, http.MethodGet, "/tasks", nil)
@@ -125,6 +130,7 @@ func TestGetTasks(t *testing.T) {
 
 // Test fully replacing a specific task data
 func TestReplaceTask(t *testing.T) {
+	resetTasks()
 	router := setupRouter()
 
 	testTask := Task{
@@ -155,6 +161,7 @@ func TestReplaceTask(t *testing.T) {
 
 // Test replacing task data with an incomplete request
 func TestReplaceTaskIncompletePayload(t *testing.T) {
+	resetTasks()
 	router := setupRouter()
 
 	badTask := Task{
@@ -181,6 +188,7 @@ func TestReplaceTaskIncompletePayload(t *testing.T) {
 
 // Test partially modifying an existing task
 func TestUpdateTaskSuccess(t *testing.T) {
+	resetTasks()
 	router := setupRouter()
 
 	updatePayload := Task{
@@ -210,6 +218,7 @@ func TestUpdateTaskSuccess(t *testing.T) {
 
 // Test updating a task with mismatched ID in payload
 func TestUpdateTaskIDMismatch(t *testing.T) {
+	resetTasks()
 	router := setupRouter()
 
 	updatePayload := Task{
@@ -235,6 +244,7 @@ func TestUpdateTaskIDMismatch(t *testing.T) {
 
 // Test deleting an existing task successfully
 func TestDeleteTaskSuccess(t *testing.T) {
+	resetTasks()
 	router := setupRouter()
 
 	taskToDeleteId := "3"
@@ -260,6 +270,7 @@ func TestDeleteTaskSuccess(t *testing.T) {
 
 // Test deleting a non-existent task
 func TestDeleteTaskNotFound(t *testing.T) {
+	resetTasks()
 	router := setupRouter()
 
 	invalidId := "nonexistent-id"
@@ -286,4 +297,12 @@ func performRequest(r http.Handler, method string, path string, body []byte) *ht
 
 func assertJSON(t *testing.T, w *httptest.ResponseRecorder) {
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+}
+
+func resetTasks() {
+	tasks = []Task{
+		{ID: strPtr("1"), Title: strPtr("Clean Room"), Completed: boolPtr(false)},
+		{ID: strPtr("2"), Title: strPtr("Read Book"), Completed: boolPtr(false)},
+		{ID: strPtr("3"), Title: strPtr("Record Video"), Completed: boolPtr(false)},
+	}
 }
