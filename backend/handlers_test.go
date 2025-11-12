@@ -125,14 +125,14 @@ func TestReplaceTask(t *testing.T) {
 
 	testTask := Task{
 		ID:        strPtr("1"),
-		Title:     strPtr("Clean the kitchen"),
+		Title:     strPtr("Study Go"),
 		Completed: boolPtr(true),
 	}
 	body, err := json.Marshal(testTask)
 	require.NoError(t, err)
 
 	originalTask, _ := getTaskById("1")
-	assert.NotEqual(t, "Clean the kitchen", *originalTask.Title)
+	assert.NotEqual(t, "Study Go", *originalTask.Title)
 
 	w := performRequest(router, http.MethodPut, "/tasks/1", body)
 
