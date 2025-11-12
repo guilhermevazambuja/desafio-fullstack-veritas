@@ -6,6 +6,10 @@ type Task struct {
 	Completed bool   `json:"completed"`
 }
 
+type SingleResp struct {
+	Data Task `json:"data"`
+}
+
 type ListResp struct {
 	Data []Task `json:"data"`
 }
