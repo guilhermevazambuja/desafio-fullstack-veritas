@@ -26,7 +26,11 @@ func setupRouter() *gin.Engine {
 func TestAddTask(t *testing.T) {
 	router := setupRouter()
 
-	testTask := Task{ID: "4", Title: "Write Documentation", Completed: false}
+	testTask := Task{
+		ID:        strPtr("4"),
+		Title:     strPtr("Write Documentation"),
+		Completed: boolPtr(false),
+	}
 	body, err := json.Marshal(testTask)
 	require.NoError(t, err)
 

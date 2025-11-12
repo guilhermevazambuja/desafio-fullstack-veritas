@@ -1,19 +1,20 @@
 package main
 
-import "errors"
-
 var tasks = []Task{
-	{ID: "1", Title: "Clean Room", Completed: false},
-	{ID: "2", Title: "Read Book", Completed: false},
-	{ID: "3", Title: "Record Video", Completed: false},
+	{ID: strPtr("1"), Title: strPtr("Clean Room"), Completed: boolPtr(false)},
+	{ID: strPtr("2"), Title: strPtr("Read Book"), Completed: boolPtr(false)},
+	{ID: strPtr("3"), Title: strPtr("Record Video"), Completed: boolPtr(false)},
 }
 
 func getTaskById(id string) (*Task, error) {
 	for i, t := range tasks {
-		if t.ID == id {
+		if t.ID != nil && *t.ID == id {
 			return &tasks[i], nil
 		}
 
 	}
 	return nil, ErrTaskNotFound
 }
+
+func strPtr(s string) *string { return &s }
+func boolPtr(b bool) *bool    { return &b }
