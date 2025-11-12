@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,12 +23,18 @@ func getTask(context *gin.Context) {
 	id := context.Param("id")
 	task, err := getTaskById(id)
 
+	statusCode := http.StatusInternalServerError
 	if err != nil {
 		context.IndentedJSON(http.StatusNotFound, ErrorResponse{Error: ErrTaskNotFound.Error()})
+		if errors.Is(err, ErrTaskNotFound) {
+			statusCode = http.StatusNotFound
+		}
+		context.IndentedJSON(statusCode, ErrorResponse{Error: err.Error()})
 		return
 	}
+	statusCode = http.StatusOK
 
-	context.IndentedJSON(http.StatusOK, SuccessResponse[Task]{Data: *task})
+	context.IndentedJSON(statusCode, SuccessResponse[Task]{Data: *task})
 }
 
 func getTasks(context *gin.Context) {
