@@ -1,9 +1,9 @@
 package main
 
 var tasks = []Task{
-	{ID: strPtr("1"), Title: strPtr("Clean Room"), Completed: boolPtr(false)},
-	{ID: strPtr("2"), Title: strPtr("Read Book"), Completed: boolPtr(false)},
-	{ID: strPtr("3"), Title: strPtr("Record Video"), Completed: boolPtr(false)},
+	{ID: strPtr("1"), Title: strPtr("Clean Room"), Status: strPtr("to_do")},
+	{ID: strPtr("2"), Title: strPtr("Read Book"), Status: strPtr("in_progress")},
+	{ID: strPtr("3"), Title: strPtr("Record Video"), Status: strPtr("done")},
 }
 
 func getTaskById(id string) (*Task, error) {
@@ -17,4 +17,3 @@ func getTaskById(id string) (*Task, error) {
 }
 
 func strPtr(s string) *string { return &s }
-func boolPtr(b bool) *bool    { return &b }

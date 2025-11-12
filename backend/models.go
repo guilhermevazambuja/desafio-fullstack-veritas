@@ -1,9 +1,9 @@
 package main
 
 type Task struct {
-	ID        *string `json:"id"`
-	Title     *string `json:"title"`
-	Completed *bool   `json:"completed"`
+	ID     *string `json:"id"`
+	Title  *string `json:"title"`
+	Status *string `json:"status"` // "to_do", "in_progress", "done"
 }
 
 type SuccessResponse[T Task | []Task] struct {

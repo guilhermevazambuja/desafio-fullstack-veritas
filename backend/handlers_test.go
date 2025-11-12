@@ -32,9 +32,9 @@ func TestAddTask(t *testing.T) {
 	router := setupRouter()
 
 	testTask := Task{
-		ID:        strPtr("4"),
-		Title:     strPtr("Write Documentation"),
-		Completed: boolPtr(false),
+		ID:     strPtr("4"),
+		Title:  strPtr("Write Documentation"),
+		Status: strPtr("to_do"),
 	}
 	body, err := json.Marshal(testTask)
 	require.NoError(t, err)
@@ -134,9 +134,9 @@ func TestReplaceTask(t *testing.T) {
 	router := setupRouter()
 
 	testTask := Task{
-		ID:        strPtr("1"),
-		Title:     strPtr("Study Go"),
-		Completed: boolPtr(true),
+		ID:     strPtr("1"),
+		Title:  strPtr("Study Go"),
+		Status: strPtr("in_progress"),
 	}
 	body, err := json.Marshal(testTask)
 	require.NoError(t, err)
@@ -210,7 +210,7 @@ func TestUpdateTaskSuccess(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, "Clean the kitchen", *resp.Data.Title)
-	assert.Equal(t, *originalTask.Completed, *resp.Data.Completed)
+	assert.Equal(t, *originalTask.Status, *resp.Data.Status)
 
 	updatedTask, _ := getTaskById("1")
 	assert.Equal(t, "Clean the kitchen", *updatedTask.Title)
@@ -301,8 +301,8 @@ func assertJSON(t *testing.T, w *httptest.ResponseRecorder) {
 
 func resetTasks() {
 	tasks = []Task{
-		{ID: strPtr("1"), Title: strPtr("Clean Room"), Completed: boolPtr(false)},
-		{ID: strPtr("2"), Title: strPtr("Read Book"), Completed: boolPtr(false)},
-		{ID: strPtr("3"), Title: strPtr("Record Video"), Completed: boolPtr(false)},
+		{ID: strPtr("1"), Title: strPtr("Clean Room"), Status: strPtr("to_do")},
+		{ID: strPtr("2"), Title: strPtr("Read Book"), Status: strPtr("in_progress")},
+		{ID: strPtr("3"), Title: strPtr("Record Video"), Status: strPtr("done")},
 	}
 }
