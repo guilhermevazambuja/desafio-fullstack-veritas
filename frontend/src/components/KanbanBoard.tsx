@@ -64,17 +64,43 @@ const KanbanBoard = () => {
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="row">
           <div className="col-md-4">
-            <Column title="To Do" tasks={tasks.to_do} id="to_do" />
+            <Column
+              title="To Do"
+              tasks={tasks.to_do}
+              id="to_do"
+              onTaskCreated={(task) =>
+                setTasks((prev) => ({
+                  ...prev,
+                  [task.status]: [...prev[task.status], task],
+                }))
+              }
+            />
           </div>
           <div className="col-md-4">
             <Column
               title="In Progress"
               tasks={tasks.in_progress}
               id="in_progress"
+              onTaskCreated={(task) =>
+                setTasks((prev) => ({
+                  ...prev,
+                  [task.status]: [...prev[task.status], task],
+                }))
+              }
             />
           </div>
           <div className="col-md-4">
-            <Column title="Done" tasks={tasks.done} id="done" />
+            <Column
+              title="Done"
+              tasks={tasks.done}
+              id="done"
+              onTaskCreated={(task) =>
+                setTasks((prev) => ({
+                  ...prev,
+                  [task.status]: [...prev[task.status], task],
+                }))
+              }
+            />
           </div>
         </div>
       </DragDropContext>
