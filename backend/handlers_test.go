@@ -32,7 +32,6 @@ func TestAddTask(t *testing.T) {
 	router := setupRouter()
 
 	testTask := Task{
-		ID:     strPtr("4"),
 		Title:  strPtr("Write Documentation"),
 		Status: strPtr("to_do"),
 	}
@@ -48,7 +47,8 @@ func TestAddTask(t *testing.T) {
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 
-	assert.Equal(t, testTask, resp.Data)
+	assert.NotNil(t, resp.Data.ID)
+	assertTaskMatch(t, testTask, resp.Data)
 }
 
 // Test adding a task with an invalid request body
@@ -293,6 +293,11 @@ func performRequest(r http.Handler, method string, path string, body []byte) *ht
 	req.Header.Set("Content-Type", "application/json")
 	r.ServeHTTP(w, req)
 	return w
+}
+
+func assertTaskMatch(t *testing.T, expected, actual Task) {
+	assert.Equal(t, *expected.Title, *actual.Title)
+	assert.Equal(t, *expected.Status, *actual.Status)
 }
 
 func assertJSON(t *testing.T, w *httptest.ResponseRecorder) {
