@@ -1,7 +1,8 @@
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Column from "./Column";
 import type { Task } from "../types";
+import { fetchTasks } from "../api/tasksApi";
 
 type TaskMap = {
   to_do: Task[];
@@ -11,20 +12,25 @@ type TaskMap = {
 
 const KanbanBoard = () => {
   const [tasks, setTasks] = useState<TaskMap>({
-    to_do: [
-      { id: "0001", title: "AAA", description: "Desc A", status: "to_do" },
-      { id: "0002", title: "BBB", description: "Desc B", status: "to_do" },
-    ],
-    in_progress: [
-      {
-        id: "0003",
-        title: "CCC",
-        description: "Desc C",
-        status: "in_progress",
-      },
-    ],
-    done: [{ id: "0004", title: "DDD", description: "Desc D", status: "done" }],
+    to_do: [],
+    in_progress: [],
+    done: [],
   });
+
+  useEffect(() => {
+    fetchTasks()
+      .then((fetchedTasks) => {
+        const taskMap: TaskMap = {
+          to_do: fetchedTasks.filter((t) => t.status === "to_do"),
+          in_progress: fetchedTasks.filter((t) => t.status === "in_progress"),
+          done: fetchedTasks.filter((t) => t.status === "done"),
+        };
+        setTasks(taskMap);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar tasks:", error);
+      });
+  }, []);
 
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
