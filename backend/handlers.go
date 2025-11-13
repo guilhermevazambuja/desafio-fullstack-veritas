@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func addTask(context *gin.Context) {
@@ -19,7 +20,15 @@ func addTask(context *gin.Context) {
 		context.IndentedJSON(statusCode, ErrorResponse{Error: ErrInvalidPayload.Error()})
 		return
 	}
+	if newTask.ID != nil {
+		statusCode = http.StatusBadRequest
+		context.IndentedJSON(statusCode, ErrorResponse{Error: ErrIDProvided.Error()})
+		return
+	}
 	statusCode = http.StatusCreated
+
+	id := uuid.New().String()
+	newTask.ID = &id
 
 	// TODO Add validation steps
 	tasks = append(tasks, newTask)

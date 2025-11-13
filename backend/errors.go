@@ -7,4 +7,5 @@ var (
 	ErrInvalidPayload    = errors.New("invalid task payload")
 	ErrIncompletePayload = errors.New("all fields must be provided")
 	ErrIDMismatch        = errors.New("payload ID does not match URL ID")
+	ErrIDProvided        = errors.New("ID must not be provided")
 )
