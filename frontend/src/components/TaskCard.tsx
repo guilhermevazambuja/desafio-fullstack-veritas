@@ -22,11 +22,8 @@ const TaskCard = ({ index, task }: TaskCardProps) => {
           <div className="card-body p-2">
             <h6 className="mb-1">{task.title}</h6>
             {task.description && (
-              <p className="mb-0 text-muted">{task.description}</p>
+              <p className="mb-0 text-muted small">{task.description}</p>
             )}
-            <small className="text-uppercase badge bg-secondary mt-1">
-              {task.status}
-            </small>
           </div>
         </div>
       )}
