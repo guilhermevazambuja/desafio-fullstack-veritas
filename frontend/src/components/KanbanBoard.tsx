@@ -43,7 +43,6 @@ const KanbanBoard = () => {
     const sourceTasks = [...tasks[sourceCol]];
     const [movedTask] = sourceTasks.splice(source.index, 1);
 
-    // Atualiza o status da tarefa se mudou de coluna
     const updatedTask = {
       ...movedTask,
       status: destCol,

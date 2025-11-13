@@ -7,7 +7,21 @@ export async function fetchTasks(): Promise<Task[]> {
     const response = await api.get<ApiResponse<Task[]>>("/tasks");
     return response.data.data;
   } catch (error) {
-    console.error("Erro ao buscar tasks:", error);
+    console.error("Error fetching tasks:", error);
     return [];
   }
+}
+
+export async function createTask(task: Task): Promise<Task> {
+  const response = await api.post<ApiResponse<Task>>("/tasks", task);
+  return response.data.data;
+}
+
+export async function updateTask(id: string, task: Partial<Task>) {
+  const response = await api.put<ApiResponse<Task>>(`/tasks/${id}`, task);
+  return response.data.data;
+}
+
+export async function deleteTask(id: string) {
+  await api.delete(`/tasks/${id}`);
 }
