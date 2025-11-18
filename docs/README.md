@@ -13,7 +13,7 @@ Este projeto consiste em uma aplicação **full stack** para gerenciamento de ta
 
 ```bash
 git clone https://github.com/guilhermevazambuja/desafio-fullstack-veritas.git
-cd seu-projeto
+cd desafio-fullstack-veritas
 ```
 
 ### 2. Instalar dependências do backend
